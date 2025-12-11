@@ -67,7 +67,7 @@ VoiceSDK sdk = VoiceSDK.builder()
 
 ```java
 // Generate complete audio file
-byte[] audio = sdk.textToSpeech("Hello world", "mamre");
+byte[] audio = sdk.textToSpeech("Hello world", "voice_id");
 
 // Save to file
 Files.write(Paths.get("output.wav"), audio);
@@ -82,7 +82,7 @@ phoneSystem.playAudio(audio);
 // Stream audio chunks as they're generated
 sdk.textToSpeechStream(
     "Hello world, this is a longer text that will be streamed",
-    "mamre",
+    "voice_id",
     audioChunk -> {
         // Receive chunks in real-time
         phoneSystem.playAudio(audioChunk);
@@ -100,7 +100,7 @@ VoiceSDK sdk = VoiceSDK.builder()
     .build();
 
 // Simple TTS
-byte[] audio = sdk.textToSpeech("Welcome to TalkToPC", "mamre");
+byte[] audio = sdk.textToSpeech("Welcome to TalkToPC", "voice_id");
 System.out.println("Generated " + audio.length + " bytes of audio");
 ```
 
@@ -108,10 +108,10 @@ System.out.println("Generated " + audio.length + " bytes of audio");
 
 ```java
 // Faster speech (1.5x speed)
-byte[] fastAudio = sdk.textToSpeech("Quick message", "mamre", 1.5);
+byte[] fastAudio = sdk.textToSpeech("Quick message", "voice_id", 1.5);
 
 // Slower speech (0.8x speed)
-byte[] slowAudio = sdk.textToSpeech("Slow and clear", "mamre", 0.8);
+byte[] slowAudio = sdk.textToSpeech("Slow and clear", "voice_id", 0.8);
 ```
 
 ### Streaming with Metadata
@@ -120,7 +120,7 @@ byte[] slowAudio = sdk.textToSpeech("Slow and clear", "mamre", 0.8);
 sdk.textToSpeechStream(
     TTSRequest.builder()
         .text("Streaming example with full configuration")
-        .voiceId("mamre")
+        .voiceId("voice_id")
         .speed(1.0)
         .build(),
     audioChunk -> {
@@ -167,7 +167,7 @@ sdk.textToSpeechStream(
 import com.talktopc.sdk.exception.TtsException;
 
 try {
-    byte[] audio = sdk.textToSpeech("Test", "mamre");
+    byte[] audio = sdk.textToSpeech("Test", "voice_id");
 } catch (TtsException e) {
     System.err.println("TTS Error [" + e.getStatusCode() + "]: " + e.getErrorMessage());
     
@@ -188,7 +188,7 @@ import com.talktopc.sdk.models.TTSResponse;
 // Build request with all options
 TTSRequest request = TTSRequest.builder()
     .text("Full configuration example")
-    .voiceId("mamre")
+    .voiceId("voice_id")
     .speed(1.2)
     .build();
 
@@ -230,7 +230,7 @@ Request configuration builder.
 ```java
 TTSRequest request = TTSRequest.builder()
     .text("Hello")              // Required
-    .voiceId("mamre")           // Required
+    .voiceId("voice_id")        // Required
     .speed(1.0)                 // Optional (0.1 - 3.0)
     .format("raw")              // Optional ("raw" or "base64")
     .build();
@@ -253,7 +253,7 @@ Response with audio and metadata.
 See [TalkToPC Documentation](https://docs.talktopc.com/voices) for the complete list of available voices.
 
 Common voices:
-- `mamre` - High quality voice (44100 Hz)
+- `voice_id` - Your voice ID
 - `en-US-female` - English female voice
 - `en-US-male` - English male voice
 
