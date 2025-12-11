@@ -1,9 +1,9 @@
-package com.talktopc.sdk.examples;
+package com.talktopc.sdk.tts.examples;
 
-import com.talktopc.sdk.VoiceSDK; // Backward compatibility - delegates to TtsSDK
-import com.talktopc.sdk.exception.TtsException; // Backward compatibility
-import com.talktopc.sdk.models.TTSRequest; // Backward compatibility
-import com.talktopc.sdk.models.TTSResponse; // Backward compatibility
+import com.talktopc.sdk.tts.TtsSDK;
+import com.talktopc.sdk.tts.exception.TtsException;
+import com.talktopc.sdk.tts.models.TTSRequest;
+import com.talktopc.sdk.tts.models.TTSResponse;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,7 +23,7 @@ public class TtsExamples {
         }
         
         // Initialize SDK
-        VoiceSDK sdk = VoiceSDK.builder()
+        TtsSDK sdk = TtsSDK.builder()
             .apiKey(apiKey)
             .baseUrl("https://api.talktopc.com")  // Optional
             .build();
@@ -35,13 +35,13 @@ public class TtsExamples {
         example4_StreamingTts(sdk);
         example5_StreamingWithCallbacks(sdk);
         example6_ErrorHandling(sdk);
-        example7_AudioFormats(sdk);  // ✅ NEW: Audio format examples
+        example7_AudioFormats(sdk);
     }
     
     /**
      * Example 1: Simple TTS (complete audio file)
      */
-    private static void example1_SimpleTts(VoiceSDK sdk) {
+    private static void example1_SimpleTts(TtsSDK sdk) {
         System.out.println("\n=== Example 1: Simple TTS ===");
         
         try {
@@ -60,7 +60,7 @@ public class TtsExamples {
     /**
      * Example 2: TTS with speed control
      */
-    private static void example2_TtsWithSpeed(VoiceSDK sdk) {
+    private static void example2_TtsWithSpeed(TtsSDK sdk) {
         System.out.println("\n=== Example 2: TTS with Speed Control ===");
         
         try {
@@ -82,7 +82,7 @@ public class TtsExamples {
     /**
      * Example 3: TTS with full metadata and audio format
      */
-    private static void example3_TtsWithMetadata(VoiceSDK sdk) {
+    private static void example3_TtsWithMetadata(TtsSDK sdk) {
         System.out.println("\n=== Example 3: TTS with Metadata and Format ===");
         
         try {
@@ -90,7 +90,7 @@ public class TtsExamples {
                 .text("This request returns full metadata with custom format")
                 .voiceId("mamre")
                 .speed(1.0)
-                .standardQuality()  // ✅ NEW: Use standard quality preset
+                .standardQuality()
                 .build();
             
             TTSResponse response = sdk.synthesize(request);
@@ -113,7 +113,7 @@ public class TtsExamples {
     /**
      * Example 4: Streaming TTS (real-time chunks)
      */
-    private static void example4_StreamingTts(VoiceSDK sdk) {
+    private static void example4_StreamingTts(TtsSDK sdk) {
         System.out.println("\n=== Example 4: Streaming TTS ===");
         
         try {
@@ -141,7 +141,7 @@ public class TtsExamples {
     /**
      * Example 5: Streaming with completion callbacks
      */
-    private static void example5_StreamingWithCallbacks(VoiceSDK sdk) {
+    private static void example5_StreamingWithCallbacks(TtsSDK sdk) {
         System.out.println("\n=== Example 5: Streaming with Callbacks ===");
         
         try {
@@ -179,7 +179,7 @@ public class TtsExamples {
     /**
      * Example 6: Error handling
      */
-    private static void example6_ErrorHandling(VoiceSDK sdk) {
+    private static void example6_ErrorHandling(TtsSDK sdk) {
         System.out.println("\n=== Example 6: Error Handling ===");
         
         try {
@@ -209,9 +209,9 @@ public class TtsExamples {
     }
     
     /**
-     * Example 7: Audio Format Configuration (NEW!)
+     * Example 7: Audio Format Configuration
      */
-    private static void example7_AudioFormats(VoiceSDK sdk) {
+    private static void example7_AudioFormats(TtsSDK sdk) {
         System.out.println("\n=== Example 7: Audio Format Configuration ===");
         
         try {
@@ -220,7 +220,7 @@ public class TtsExamples {
             TTSRequest highQuality = TTSRequest.builder()
                 .text("This is high quality audio")
                 .voiceId("mamre")
-                .highQuality()  // ✅ Preset for high quality
+                .highQuality()
                 .build();
             
             byte[] hqAudio = sdk.textToSpeech(highQuality);
@@ -232,7 +232,7 @@ public class TtsExamples {
             TTSRequest phoneAudio = TTSRequest.builder()
                 .text("This is phone system audio")
                 .voiceId("en-US-female")
-                .phoneSystem()  // ✅ Preset for phone systems
+                .phoneSystem()
                 .build();
             
             sdk.textToSpeechStream(

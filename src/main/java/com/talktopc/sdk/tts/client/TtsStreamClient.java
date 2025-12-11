@@ -1,9 +1,9 @@
-package com.talktopc.sdk.client;
+package com.talktopc.sdk.tts.client;
 
-import com.talktopc.sdk.VoiceSDK;
-import com.talktopc.sdk.config.SDKConfig;
-import com.talktopc.sdk.exception.TtsException;
-import com.talktopc.sdk.models.TTSRequest;
+import com.talktopc.sdk.common.SDKConfig;
+import com.talktopc.sdk.tts.TtsSDK;
+import com.talktopc.sdk.tts.exception.TtsException;
+import com.talktopc.sdk.tts.models.TTSRequest;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -54,7 +54,7 @@ public class TtsStreamClient {
     public void stream(
             TTSRequest request,
             Consumer<byte[]> chunkHandler,
-            Consumer<VoiceSDK.StreamMetadata> onComplete,
+            Consumer<TtsSDK.StreamMetadata> onComplete,
             Consumer<Throwable> onError) {
         
         try {
@@ -125,7 +125,7 @@ public class TtsStreamClient {
             String event,
             String data,
             Consumer<byte[]> chunkHandler,
-            Consumer<VoiceSDK.StreamMetadata> onComplete) {
+            Consumer<TtsSDK.StreamMetadata> onComplete) {
         
         if ("audio".equals(event)) {
             // Extract and decode audio chunk
@@ -143,7 +143,7 @@ public class TtsStreamClient {
             long durationMs = extractJsonLong(data, "durationMs");
             double creditsUsed = extractJsonDouble(data, "creditsUsed");
             
-            VoiceSDK.StreamMetadata metadata = new VoiceSDK.StreamMetadata(
+            TtsSDK.StreamMetadata metadata = new TtsSDK.StreamMetadata(
                 conversationId, totalChunks, totalBytes, durationMs, creditsUsed);
             onComplete.accept(metadata);
             

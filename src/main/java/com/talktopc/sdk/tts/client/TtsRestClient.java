@@ -1,9 +1,9 @@
-package com.talktopc.sdk.client;
+package com.talktopc.sdk.tts.client;
 
-import com.talktopc.sdk.config.SDKConfig;
-import com.talktopc.sdk.exception.TtsException;
-import com.talktopc.sdk.models.TTSRequest;
-import com.talktopc.sdk.models.TTSResponse;
+import com.talktopc.sdk.common.SDKConfig;
+import com.talktopc.sdk.tts.exception.TtsException;
+import com.talktopc.sdk.tts.models.TTSRequest;
+import com.talktopc.sdk.tts.models.TTSResponse;
 
 import java.io.IOException;
 import java.net.URI;

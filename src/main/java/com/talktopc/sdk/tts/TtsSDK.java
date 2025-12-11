@@ -1,23 +1,28 @@
-package com.talktopc.sdk;
+package com.talktopc.sdk.tts;
 
 import com.talktopc.sdk.common.SDKConfig;
-import com.talktopc.sdk.models.TTSRequest;
-import com.talktopc.sdk.models.TTSResponse;
-import com.talktopc.sdk.tts.TtsSDK;
+import com.talktopc.sdk.tts.client.TtsRestClient;
+import com.talktopc.sdk.tts.client.TtsStreamClient;
+import com.talktopc.sdk.tts.models.TTSRequest;
+import com.talktopc.sdk.tts.models.TTSResponse;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 /**
- * TalkToPC Voice SDK - Backend Edition
+ * TalkToPC TTS SDK - Text-to-Speech Module
  * 
- * @deprecated This class is maintained for backward compatibility.
- * Please use {@link com.talktopc.sdk.tts.TtsSDK} instead.
+ * Simple Java SDK for text-to-speech conversion using TalkToPC's TTS API.
  * 
- * This class delegates all calls to the TTS SDK module.
+ * Features:
+ * - Simple TTS (complete audio file)
+ * - Streaming TTS (real-time chunks)
+ * - Multiple voice support
+ * - Automatic authentication
  * 
  * Example usage:
  * <pre>
- * VoiceSDK sdk = VoiceSDK.builder()
+ * TtsSDK sdk = TtsSDK.builder()
  *     .apiKey("your-api-key")
  *     .baseUrl("https://api.talktopc.com")
  *     .build();
@@ -30,19 +35,22 @@ import java.util.function.Consumer;
  *     phoneSystem.playAudio(chunk);
  * });
  * </pre>
- * 
- * @see com.talktopc.sdk.tts.TtsSDK
  */
-@Deprecated
-public class VoiceSDK {
+public class TtsSDK {
     
-    private final TtsSDK ttsSDK;
+    private final TtsRestClient restClient;
+    private final TtsStreamClient streamClient;
+    private final com.talktopc.sdk.tts.client.TtsWebSocketClient websocketClient;
+    private final SDKConfig config;
     
     /**
      * Private constructor - use builder() to create instances
      */
-    private VoiceSDK(TtsSDK ttsSDK) {
-        this.ttsSDK = ttsSDK;
+    private TtsSDK(SDKConfig config) {
+        this.config = config;
+        this.restClient = new TtsRestClient(config);
+        this.streamClient = new TtsStreamClient(config);
+        this.websocketClient = new com.talktopc.sdk.tts.client.TtsWebSocketClient(config);
     }
     
     /**
@@ -64,7 +72,10 @@ public class VoiceSDK {
      * @throws com.talktopc.sdk.tts.exception.TtsException if synthesis fails
      */
     public byte[] textToSpeech(String text, String voiceId) {
-        return ttsSDK.textToSpeech(text, voiceId);
+        return textToSpeech(TTSRequest.builder()
+            .text(text)
+            .voiceId(voiceId)
+            .build());
     }
     
     /**
@@ -76,7 +87,11 @@ public class VoiceSDK {
      * @return Complete audio data as byte array
      */
     public byte[] textToSpeech(String text, String voiceId, double speed) {
-        return ttsSDK.textToSpeech(text, voiceId, speed);
+        return textToSpeech(TTSRequest.builder()
+            .text(text)
+            .voiceId(voiceId)
+            .speed(speed)
+            .build());
     }
     
     /**
@@ -86,7 +101,8 @@ public class VoiceSDK {
      * @return Complete audio data as byte array
      */
     public byte[] textToSpeech(TTSRequest request) {
-        return ttsSDK.textToSpeech(request.getDelegate());
+        TTSResponse response = restClient.synthesize(request);
+        return response.getAudio();
     }
     
     /**
@@ -96,8 +112,7 @@ public class VoiceSDK {
      * @return TTS response with audio and metadata
      */
     public TTSResponse synthesize(TTSRequest request) {
-        com.talktopc.sdk.tts.models.TTSResponse response = ttsSDK.synthesize(request.getDelegate());
-        return TTSResponse.from(response);
+        return restClient.synthesize(request);
     }
     
     /**
@@ -109,7 +124,10 @@ public class VoiceSDK {
      * @param chunkHandler Handler for audio chunks
      */
     public void textToSpeechStream(String text, String voiceId, Consumer<byte[]> chunkHandler) {
-        ttsSDK.textToSpeechStream(text, voiceId, chunkHandler);
+        textToSpeechStream(TTSRequest.builder()
+            .text(text)
+            .voiceId(voiceId)
+            .build(), chunkHandler);
     }
     
     /**
@@ -121,7 +139,11 @@ public class VoiceSDK {
      * @param chunkHandler Handler for audio chunks
      */
     public void textToSpeechStream(String text, String voiceId, double speed, Consumer<byte[]> chunkHandler) {
-        ttsSDK.textToSpeechStream(text, voiceId, speed, chunkHandler);
+        textToSpeechStream(TTSRequest.builder()
+            .text(text)
+            .voiceId(voiceId)
+            .speed(speed)
+            .build(), chunkHandler);
     }
     
     /**
@@ -131,7 +153,7 @@ public class VoiceSDK {
      * @param chunkHandler Handler for audio chunks
      */
     public void textToSpeechStream(TTSRequest request, Consumer<byte[]> chunkHandler) {
-        ttsSDK.textToSpeechStream(request.getDelegate(), chunkHandler);
+        streamClient.stream(request, chunkHandler);
     }
     
     /**
@@ -147,14 +169,7 @@ public class VoiceSDK {
             Consumer<byte[]> chunkHandler,
             Consumer<StreamMetadata> onComplete,
             Consumer<Throwable> onError) {
-        ttsSDK.textToSpeechStream(request.getDelegate(), chunkHandler, 
-            metadata -> onComplete.accept(new StreamMetadata(
-                metadata.getConversationId(),
-                metadata.getTotalChunks(),
-                metadata.getTotalBytes(),
-                metadata.getDurationMs(),
-                metadata.getCreditsUsed()
-            )), onError);
+        streamClient.stream(request, chunkHandler, onComplete, onError);
     }
     
     /**
@@ -163,7 +178,72 @@ public class VoiceSDK {
      * @return SDK configuration
      */
     public SDKConfig getConfig() {
-        return ttsSDK.getConfig();
+        return config;
+    }
+    
+    /**
+     * Get WebSocket client for advanced usage
+     * 
+     * @return WebSocket client instance
+     */
+    public com.talktopc.sdk.tts.client.TtsWebSocketClient getWebSocketClient() {
+        return websocketClient;
+    }
+    
+    /**
+     * Text-to-speech using WebSocket (lower latency, bidirectional)
+     * 
+     * Connects to: /api/v1/tts/stream/{voiceId}
+     * 
+     * @param request TTS request configuration
+     * @param chunkHandler Handler for audio chunks (received as binary)
+     * @param onComplete Completion handler (receives metadata)
+     * @param onError Error handler
+     * @return CompletableFuture that completes when connected and request sent
+     */
+    public CompletableFuture<Void> textToSpeechWebSocket(
+            TTSRequest request,
+            Consumer<byte[]> chunkHandler,
+            Consumer<StreamMetadata> onComplete,
+            Consumer<Throwable> onError) {
+        
+        websocketClient.onAudioChunk(chunkHandler);
+        websocketClient.onComplete(metadata -> {
+            if (onComplete != null) {
+                StreamMetadata sdkMetadata = new StreamMetadata(
+                    metadata.getConversationId(),
+                    metadata.getTotalChunks(),
+                    metadata.getTotalBytes(),
+                    metadata.getDurationMs(),
+                    metadata.getCreditsUsed()
+                );
+                onComplete.accept(sdkMetadata);
+            }
+        });
+        websocketClient.onError(onError != null ? onError : Throwable::printStackTrace);
+        
+        return websocketClient.connectAndSynthesize(request);
+    }
+    
+    /**
+     * Text-to-speech using WebSocket (simplified version)
+     * 
+     * @param text Text to synthesize
+     * @param voiceId Voice ID
+     * @param chunkHandler Handler for audio chunks
+     * @return CompletableFuture that completes when connected and request sent
+     */
+    public CompletableFuture<Void> textToSpeechWebSocket(
+            String text,
+            String voiceId,
+            Consumer<byte[]> chunkHandler) {
+        
+        TTSRequest request = TTSRequest.builder()
+            .text(text)
+            .voiceId(voiceId)
+            .build();
+        
+        return textToSpeechWebSocket(request, chunkHandler, null, null);
     }
     
     /**
@@ -257,22 +337,16 @@ public class VoiceSDK {
         /**
          * Build the SDK instance
          * 
-         * @return VoiceSDK instance
+         * @return TtsSDK instance
          * @throws IllegalArgumentException if API key is missing
          */
-        public VoiceSDK build() {
+        public TtsSDK build() {
             if (apiKey == null || apiKey.trim().isEmpty()) {
                 throw new IllegalArgumentException("API key is required");
             }
             
-            TtsSDK ttsSDK = TtsSDK.builder()
-                .apiKey(apiKey)
-                .baseUrl(baseUrl)
-                .connectTimeout(connectTimeout)
-                .readTimeout(readTimeout)
-                .build();
-            
-            return new VoiceSDK(ttsSDK);
+            SDKConfig config = new SDKConfig(apiKey, baseUrl, connectTimeout, readTimeout);
+            return new TtsSDK(config);
         }
     }
 }

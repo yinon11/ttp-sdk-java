@@ -2,53 +2,44 @@ package com.talktopc.sdk.models;
 
 /**
  * TTS Response with audio and metadata
+ * 
+ * @deprecated This class is maintained for backward compatibility.
+ * Please use {@link com.talktopc.sdk.tts.models.TTSResponse} instead.
+ * 
+ * This is a wrapper class that delegates to the TTS SDK version.
  */
+@Deprecated
 public class TTSResponse {
-    private final byte[] audio;
-    private final int sampleRate;
-    private final long durationMs;
-    private final long audioSizeBytes;
-    private final double creditsUsed;
-    private final String conversationId;
+    private final com.talktopc.sdk.tts.models.TTSResponse delegate;
     
-    public TTSResponse(byte[] audio, int sampleRate, long durationMs, 
-                      long audioSizeBytes, double creditsUsed, String conversationId) {
-        this.audio = audio;
-        this.sampleRate = sampleRate;
-        this.durationMs = durationMs;
-        this.audioSizeBytes = audioSizeBytes;
-        this.creditsUsed = creditsUsed;
-        this.conversationId = conversationId;
+    public TTSResponse(com.talktopc.sdk.tts.models.TTSResponse delegate) {
+        this.delegate = delegate;
     }
     
-    public byte[] getAudio() {
-        return audio;
+    /**
+     * Create a TTSResponse from the TTS SDK response
+     * @param delegate TTS SDK response
+     * @return TTSResponse wrapper
+     */
+    public static TTSResponse from(com.talktopc.sdk.tts.models.TTSResponse delegate) {
+        return new TTSResponse(delegate);
     }
     
-    public int getSampleRate() {
-        return sampleRate;
-    }
-    
-    public long getDurationMs() {
-        return durationMs;
-    }
-    
-    public long getAudioSizeBytes() {
-        return audioSizeBytes;
-    }
-    
-    public double getCreditsUsed() {
-        return creditsUsed;
-    }
-    
-    public String getConversationId() {
-        return conversationId;
-    }
+    // Delegate all getter methods
+    public byte[] getAudio() { return delegate.getAudio(); }
+    public int getSampleRate() { return delegate.getSampleRate(); }
+    public long getDurationMs() { return delegate.getDurationMs(); }
+    public long getAudioSizeBytes() { return delegate.getAudioSizeBytes(); }
+    public double getCreditsUsed() { return delegate.getCreditsUsed(); }
+    public String getConversationId() { return delegate.getConversationId(); }
     
     @Override
     public String toString() {
-        return String.format("TTSResponse{sampleRate=%d, duration=%dms, size=%d bytes, credits=%.2f}",
-            sampleRate, durationMs, audioSizeBytes, creditsUsed);
+        return delegate.toString();
+    }
+    
+    // Get the underlying delegate (for internal use)
+    com.talktopc.sdk.tts.models.TTSResponse getDelegate() {
+        return delegate;
     }
 }
-

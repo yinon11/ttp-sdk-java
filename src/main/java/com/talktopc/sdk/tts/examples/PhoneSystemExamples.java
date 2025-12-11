@@ -1,7 +1,7 @@
-package com.talktopc.sdk.examples;
+package com.talktopc.sdk.tts.examples;
 
-import com.talktopc.sdk.VoiceSDK; // Backward compatibility - delegates to TtsSDK
-import com.talktopc.sdk.models.TTSRequest; // Backward compatibility
+import com.talktopc.sdk.tts.TtsSDK;
+import com.talktopc.sdk.tts.models.TTSRequest;
 
 /**
  * Examples of TTS SDK with Phone System Integration
@@ -17,7 +17,7 @@ public class PhoneSystemExamples {
             System.exit(1);
         }
         
-        VoiceSDK sdk = VoiceSDK.builder()
+        TtsSDK sdk = TtsSDK.builder()
             .apiKey(apiKey)
             .build();
         
@@ -33,14 +33,14 @@ public class PhoneSystemExamples {
      * Example 1: Standard Phone System (PCMU @ 8kHz)
      * Most common format for VoIP/telephony
      */
-    private static void example1_StandardPhoneSystem(VoiceSDK sdk) {
+    private static void example1_StandardPhoneSystem(TtsSDK sdk) {
         System.out.println("\n=== Example 1: Standard Phone System ===");
         
         // Using convenient phoneSystem() preset
         TTSRequest request = TTSRequest.builder()
             .text("Hello, thank you for calling. How can I help you today?")
             .voiceId("en-US-female")
-            .phoneSystem()  // ✅ PCMU @ 8kHz, 20ms frames
+            .phoneSystem()
             .build();
         
         System.out.println("📞 Streaming to phone system...");
@@ -60,18 +60,18 @@ public class PhoneSystemExamples {
      * Example 2: Twilio Integration
      * Twilio expects μ-law @ 8kHz
      */
-    private static void example2_TwilioIntegration(VoiceSDK sdk) {
+    private static void example2_TwilioIntegration(TtsSDK sdk) {
         System.out.println("\n=== Example 2: Twilio Integration ===");
         
         TTSRequest request = TTSRequest.builder()
             .text("Your appointment is confirmed for tomorrow at 3 PM")
             .voiceId("en-US-male")
             .outputContainer("raw")
-            .outputEncoding("pcmu")      // μ-law for Twilio
-            .outputSampleRate(8000)       // 8kHz
+            .outputEncoding("pcmu")
+            .outputSampleRate(8000)
             .outputBitDepth(16)
-            .outputChannels(1)            // Mono
-            .outputFrameDurationMs(20)    // 20ms frames
+            .outputChannels(1)
+            .outputFrameDurationMs(20)
             .build();
         
         System.out.println("📞 Twilio call audio...");
@@ -89,13 +89,13 @@ public class PhoneSystemExamples {
      * Example 3: Telnyx Integration
      * Similar to Twilio - μ-law @ 8kHz
      */
-    private static void example3_TelnyxIntegration(VoiceSDK sdk) {
+    private static void example3_TelnyxIntegration(TtsSDK sdk) {
         System.out.println("\n=== Example 3: Telnyx Integration ===");
         
         TTSRequest request = TTSRequest.builder()
             .text("Press 1 for sales, press 2 for support")
             .voiceId("en-US-female")
-            .phoneSystem()  // Same as Twilio
+            .phoneSystem()
             .build();
         
         System.out.println("📞 Telnyx call audio...");
@@ -113,19 +113,18 @@ public class PhoneSystemExamples {
      * Example 4: Custom Audio Format
      * Configure exactly what you need
      */
-    private static void example4_CustomFormat(VoiceSDK sdk) {
+    private static void example4_CustomFormat(TtsSDK sdk) {
         System.out.println("\n=== Example 4: Custom Audio Format ===");
         
         TTSRequest request = TTSRequest.builder()
             .text("Custom format example")
             .voiceId("mamre")
-            // Custom configuration
             .outputContainer("raw")
             .outputEncoding("pcm")
-            .outputSampleRate(16000)      // 16kHz
-            .outputBitDepth(16)           // 16-bit
-            .outputChannels(1)            // Mono
-            .outputFrameDurationMs(100)   // 100ms frames
+            .outputSampleRate(16000)
+            .outputBitDepth(16)
+            .outputChannels(1)
+            .outputFrameDurationMs(100)
             .build();
         
         System.out.println("🎵 Custom format (16kHz PCM, 100ms frames)...");
@@ -142,13 +141,13 @@ public class PhoneSystemExamples {
      * Example 5: High Quality Audio File
      * WAV format @ 44.1kHz for high-quality recording
      */
-    private static void example5_HighQualityAudio(VoiceSDK sdk) {
+    private static void example5_HighQualityAudio(TtsSDK sdk) {
         System.out.println("\n=== Example 5: High Quality Audio ===");
         
         TTSRequest request = TTSRequest.builder()
             .text("This is a high quality recording")
             .voiceId("mamre")
-            .highQuality()  // WAV @ 44.1kHz
+            .highQuality()
             .build();
         
         // Get complete audio file
@@ -169,4 +168,3 @@ public class PhoneSystemExamples {
         }
     }
 }
-
